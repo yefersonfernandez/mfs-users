@@ -1,0 +1,17 @@
+server:
+  port: 9090
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/users
+    username: postgres
+    password: 1234
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      format_sql: true
+    show-sql: true
+
+appDescription: "Pragma Usuarios"
+appVersion: "1.0.0"
