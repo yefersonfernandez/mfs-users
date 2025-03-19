@@ -1,6 +1,7 @@
 package com.pragma.usuarios.infrastructure.input.rest;
 
 import com.pragma.usuarios.application.dto.request.UserRequestDto;
+import com.pragma.usuarios.application.dto.response.UserResponseDto;
 import com.pragma.usuarios.application.handler.IUserHandler;
 import com.pragma.usuarios.infrastructure.utils.ApiPaths;
 import com.pragma.usuarios.infrastructure.utils.ApiDescriptions;
@@ -12,10 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(ApiPaths.BASE_USERS)
@@ -37,5 +35,18 @@ public class UserRestController {
     ) {
         userHandler.saveUser(userRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @Operation(summary = ApiDescriptions.GET_USER_BY_ID_SUMMARY)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = ApiDescriptions.GET_USER_BY_ID_SUCCESS),
+            @ApiResponse(responseCode = "404", description = ApiDescriptions.GET_USER_BY_ID_NOT_FOUND)
+    })
+    @GetMapping(ApiPaths.USER_BY_ID)
+    public ResponseEntity<UserResponseDto> getUserById(
+            @Parameter(description = ApiDescriptions.GET_USER_BY_ID_PARAMETER, required = true)
+            @PathVariable(value = "id") Long userId
+    ) {
+        return ResponseEntity.ok(userHandler.getUserById(userId));
     }
 }
