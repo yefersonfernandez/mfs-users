@@ -16,6 +16,7 @@ public interface IUserEntityMapper {
     @Mapping(source = "roleModel", target = "roleEntity")
     UserEntity toUserEntity(UserModel userModel);
 
+    @Mapping(source = "roleEntity", target = "roleModel")
     UserModel toUserModel(UserEntity userEntity);
 
     List<UserModel> toUserModelList(List<UserEntity> userEntityList);

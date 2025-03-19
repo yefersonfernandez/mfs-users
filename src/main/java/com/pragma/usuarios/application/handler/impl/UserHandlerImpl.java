@@ -33,8 +33,7 @@ public class UserHandlerImpl implements IUserHandler {
 
     @Override
     public UserResponseDto getUserById(Long userId) {
-        UserResponseDto userResponseDto = userResponseMapper.toUserResponse(userServicePort.getUserById(userId));
-        return userResponseDto;
+        return userResponseMapper.toUserResponse(userServicePort.getUserById(userId));
     }
 
 
