@@ -3,7 +3,6 @@ package com.pragma.usuarios.application.handler;
 import com.pragma.usuarios.application.dto.request.RoleRequestDto;
 import com.pragma.usuarios.application.dto.response.RoleResponseDto;
 
-import java.util.List;
 
 public interface IRoleHandler {
 
@@ -11,7 +10,4 @@ public interface IRoleHandler {
 
     RoleResponseDto getRoleById(Long idUserRole);
 
-    List<RoleResponseDto> getAllRoles();
-
-    void deleteRoleById(Long idUserRole);
 }

@@ -11,7 +11,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -32,13 +31,4 @@ public class RoleHandlerImpl implements IRoleHandler {
         return roleResponseMapper.toRoleResponse(roleServicePort.getRoleById(idUserRole));
     }
 
-    @Override
-    public List<RoleResponseDto> getAllRoles() {
-        return roleResponseMapper.toResponseList(roleServicePort.getAllRoles());
-    }
-
-    @Override
-    public void deleteRoleById(Long idUserRole) {
-        roleServicePort.deleteRoleById(idUserRole);
-    }
 }

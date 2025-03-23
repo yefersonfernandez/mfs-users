@@ -6,7 +6,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
-import java.util.List;
 
 @Mapper(componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
@@ -19,5 +18,4 @@ public interface IUserEntityMapper {
     @Mapping(source = "roleEntity", target = "roleModel")
     UserModel toUserModel(UserEntity userEntity);
 
-    List<UserModel> toUserModelList(List<UserEntity> userEntityList);
 }
