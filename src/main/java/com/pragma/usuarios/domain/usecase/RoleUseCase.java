@@ -1,11 +1,9 @@
 package com.pragma.usuarios.domain.usecase;
 
-import com.pragma.usuarios.application.dto.response.RoleResponseDto;
 import com.pragma.usuarios.domain.api.IRoleServicePort;
 import com.pragma.usuarios.domain.model.RoleModel;
 import com.pragma.usuarios.domain.spi.IRolePersistencePort;
 
-import java.util.List;
 
 public class RoleUseCase implements IRoleServicePort {
 
@@ -25,13 +23,4 @@ public class RoleUseCase implements IRoleServicePort {
         return rolePersistencePort.getRoleById(roleId);
     }
 
-    @Override
-    public List<RoleModel> getAllRoles() {
-        return rolePersistencePort.getAllRoles();
-    }
-
-    @Override
-    public void deleteRoleById(Long roleId) {
-        rolePersistencePort.deleteRoleById(roleId);
-    }
 }

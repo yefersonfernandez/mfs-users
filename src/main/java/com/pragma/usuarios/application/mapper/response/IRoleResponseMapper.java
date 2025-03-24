@@ -5,7 +5,6 @@ import com.pragma.usuarios.domain.model.RoleModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
-import java.util.List;
 
 @Mapper(componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
@@ -14,5 +13,4 @@ public interface IRoleResponseMapper {
 
     RoleResponseDto toRoleResponse(RoleModel roleModel);
 
-    List<RoleResponseDto> toResponseList(List<RoleModel> roleList);
 }

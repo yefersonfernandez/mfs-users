@@ -23,7 +23,8 @@ public class UserRestController {
 
     private final IUserHandler userHandler;
 
-    @Operation(summary = ApiDescriptions.CREATE_OWNER_SUMMARY)
+    @Operation(summary = ApiDescriptions.CREATE_OWNER_SUMMARY,
+            description = ApiDescriptions.CREATE_OWNER_DESCRIPTION)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = ApiDescriptions.CREATE_OWNER_201),
             @ApiResponse(responseCode = "409", description = ApiDescriptions.CREATE_OWNER_409)
@@ -31,13 +32,14 @@ public class UserRestController {
     @PostMapping(ApiPaths.CREATE_OWNER)
     public ResponseEntity<Void> createOwner(
             @Parameter(description = ApiDescriptions.CREATE_OWNER_PARAM, required = true)
-            @RequestBody UserRequestDto userRequest
+            @RequestBody UserRequestDto userRequestDto
     ) {
-        userHandler.saveUser(userRequest);
+        userHandler.saveUser(userRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @Operation(summary = ApiDescriptions.GET_USER_BY_ID_SUMMARY)
+    @Operation(summary = ApiDescriptions.GET_USER_BY_ID_SUMMARY,
+            description = ApiDescriptions.GET_USER_BY_ID_DESCRIPTION)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = ApiDescriptions.GET_USER_BY_ID_SUCCESS),
             @ApiResponse(responseCode = "404", description = ApiDescriptions.GET_USER_BY_ID_NOT_FOUND)
@@ -45,8 +47,9 @@ public class UserRestController {
     @GetMapping(ApiPaths.USER_BY_ID)
     public ResponseEntity<UserResponseDto> getUserById(
             @Parameter(description = ApiDescriptions.GET_USER_BY_ID_PARAMETER, required = true)
-            @PathVariable(value = "id") Long userId
+            @PathVariable(name = "id") Long userId
     ) {
-        return ResponseEntity.ok(userHandler.getUserById(userId));
+        UserResponseDto response = userHandler.getUserById(userId);
+        return ResponseEntity.ok(response);
     }
 }

@@ -9,5 +9,4 @@ public interface IUserHandler {
 
     UserResponseDto getUserById(Long userId);
 
-    void deleteUserById(Long userId);
 }

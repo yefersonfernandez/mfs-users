@@ -37,6 +37,8 @@ public class SecurityConfig {
         return httpSecurity.authorizeHttpRequests( (authz) -> authz
                         .requestMatchers(HttpMethod.POST, "/api/v1/users/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/users/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/roles/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/roles/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilter(new JwtAuthenticationFilter(authenticationManager()))
                 .addFilter(new JwtAuthorizationFilter(authenticationManager()))

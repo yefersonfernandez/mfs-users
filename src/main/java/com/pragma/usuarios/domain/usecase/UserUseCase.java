@@ -47,11 +47,6 @@ public class UserUseCase implements IUserServicePort {
         return userPersistencePort.getUserById(userId);
     }
 
-    @Override
-    public void deleteUserById(Long userId) {
-        userPersistencePort.deleteUserById(userId);
-    }
-
     private void validateUser(UserModel user) {
         validateRequiredFields(user);
         validateFormats(user);
@@ -60,11 +55,20 @@ public class UserUseCase implements IUserServicePort {
     }
 
     private void validateRequiredFields(UserModel user) {
-        Optional.ofNullable(user.getFirstName()).orElseThrow(() -> new MissingRequiredFieldsException(ErrorMessages.NAME_REQUIRED));
-        Optional.ofNullable(user.getEmail()).orElseThrow(() -> new MissingRequiredFieldsException(ErrorMessages.EMAIL_REQUIRED));
-        Optional.ofNullable(user.getPhoneNumber()).orElseThrow(() -> new MissingRequiredFieldsException(ErrorMessages.PHONE_REQUIRED));
-        Optional.ofNullable(user.getDocumentNumber()).orElseThrow(() -> new MissingRequiredFieldsException(ErrorMessages.DOCUMENT_REQUIRED));
-        Optional.ofNullable(user.getBirthdate()).orElseThrow(() -> new MissingRequiredFieldsException(ErrorMessages.BIRTHDATE_REQUIRED));
+        Optional.ofNullable(user.getFirstName())
+                .orElseThrow(() -> new MissingRequiredFieldsException(ErrorMessages.NAME_REQUIRED));
+
+        Optional.ofNullable(user.getEmail())
+                .orElseThrow(() -> new MissingRequiredFieldsException(ErrorMessages.EMAIL_REQUIRED));
+
+        Optional.ofNullable(user.getPhoneNumber())
+                .orElseThrow(() -> new MissingRequiredFieldsException(ErrorMessages.PHONE_REQUIRED));
+
+        Optional.ofNullable(user.getDocumentNumber())
+                .orElseThrow(() -> new MissingRequiredFieldsException(ErrorMessages.DOCUMENT_REQUIRED));
+
+        Optional.ofNullable(user.getBirthdate())
+                .orElseThrow(() -> new MissingRequiredFieldsException(ErrorMessages.BIRTHDATE_REQUIRED));
     }
 
     private void validateFormats(UserModel user) {

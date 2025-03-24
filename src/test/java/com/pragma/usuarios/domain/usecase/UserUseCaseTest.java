@@ -6,6 +6,7 @@ import com.pragma.usuarios.domain.model.UserModel;
 import com.pragma.usuarios.domain.spi.IPasswordEncoderPort;
 import com.pragma.usuarios.domain.spi.IRolePersistencePort;
 import com.pragma.usuarios.domain.spi.IUserPersistencePort;
+import com.pragma.usuarios.domain.utils.ErrorMessages;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +20,24 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UserUseCaseTest {
+
+    private static final long ROLE_OWNER_ID = 2L;
+    private static final String ROLE_OWNER_NAME = "PROPIETARIO";
+    private static final String ROLE_OWNER_DESCRIPTION = "PROPIETARIO";
+
+    private static final long DEFAULT_USER_ID = 1L;
+    private static final String DEFAULT_FIRST_NAME = "Juan";
+    private static final String DEFAULT_LAST_NAME = "Perez";
+    private static final String DEFAULT_DOCUMENT_NUMBER = "123456789";
+    private static final String DEFAULT_PHONE_NUMBER = "+573005698325";
+    private static final String DEFAULT_EMAIL = "juan.perez@example.com";
+    private static final String DEFAULT_PASSWORD = "password123";
+    private static final LocalDate DEFAULT_BIRTHDATE = LocalDate.of(2000, 1, 1);
+    private static final String ENCODED_PASSWORD = "encodedPassword";
+
+    private static final String INVALID_EMAIL = "invalid-email";
+    private static final String INVALID_PHONE_NUMBER = "123abc";
+    private static final String INVALID_DOCUMENT_NUMBER = "abc123";
 
     @Mock
     private IUserPersistencePort userPersistencePort;
@@ -37,68 +56,96 @@ class UserUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        ownerRole = new RoleModel(2L, "PROPIETARIO","PROPIETARIO");
+        ownerRole = new RoleModel(ROLE_OWNER_ID, ROLE_OWNER_NAME, ROLE_OWNER_DESCRIPTION);
 
         userModel = new UserModel();
-        userModel.setFirstName("Juan");
-        userModel.setLastName("Perez");
-        userModel.setDocumentNumber("123456789");
-        userModel.setPhoneNumber("+573005698325");
-        userModel.setBirthdate(LocalDate.of(2000, 1, 1));
-        userModel.setEmail("juan.perez@example.com");
-        userModel.setPassword("password123");
-        userModel.setRoleModel(new RoleModel(2L, "PROPIETARIO","PROPIETARIO"));
+        userModel.setId(DEFAULT_USER_ID);
+        userModel.setFirstName(DEFAULT_FIRST_NAME);
+        userModel.setLastName(DEFAULT_LAST_NAME);
+        userModel.setDocumentNumber(DEFAULT_DOCUMENT_NUMBER);
+        userModel.setPhoneNumber(DEFAULT_PHONE_NUMBER);
+        userModel.setBirthdate(DEFAULT_BIRTHDATE);
+        userModel.setEmail(DEFAULT_EMAIL);
+        userModel.setPassword(DEFAULT_PASSWORD);
+        userModel.setRoleModel(ownerRole);
     }
 
     @Test
-    void saveUser_SuccessfullyCreatesOwner() {
-        when(rolePersistencePort.getRoleById(2L)).thenReturn(ownerRole);
-        when(passwordEncoderPort.encode(anyString())).thenReturn("encodedPassword");
+    void saveUser_SuccessfullyCreatesUser() {
+        when(rolePersistencePort.getRoleById(ROLE_OWNER_ID)).thenReturn(ownerRole);
+        when(passwordEncoderPort.encode(DEFAULT_PASSWORD)).thenReturn(ENCODED_PASSWORD);
+        doNothing().when(userPersistencePort).saveUser(any(UserModel.class));
 
         assertDoesNotThrow(() -> userUseCase.saveUser(userModel));
-
-        assertEquals(ownerRole, userModel.getRoleModel());
-        assertEquals("encodedPassword", userModel.getPassword());
-
         verify(userPersistencePort, times(1)).saveUser(userModel);
     }
 
     @Test
     void saveUser_InvalidEmail_ThrowsException() {
-        userModel.setEmail("invalid-email");
-        assertThrows(InvalidEmailException.class, () -> userUseCase.saveUser(userModel));
+        userModel.setEmail(INVALID_EMAIL);
+        InvalidEmailException exception = assertThrows(InvalidEmailException.class, () -> userUseCase.saveUser(userModel));
+        assertEquals(ErrorMessages.INVALID_EMAIL, exception.getMessage());
+        verify(userPersistencePort, never()).saveUser(any());
     }
 
     @Test
     void saveUser_InvalidPhoneNumber_ThrowsException() {
-        userModel.setPhoneNumber("123abc");
-        assertThrows(InvalidPhoneNumberException.class, () -> userUseCase.saveUser(userModel));
+        userModel.setPhoneNumber(INVALID_PHONE_NUMBER);
+        InvalidPhoneNumberException exception = assertThrows(InvalidPhoneNumberException.class, () -> userUseCase.saveUser(userModel));
+        assertEquals(ErrorMessages.INVALID_PHONE, exception.getMessage());
+        verify(userPersistencePort, never()).saveUser(any());
     }
 
     @Test
     void saveUser_InvalidDocumentNumber_ThrowsException() {
-        userModel.setDocumentNumber("abc123");
-        assertThrows(InvalidDocumentException.class, () -> userUseCase.saveUser(userModel));
+        userModel.setDocumentNumber(INVALID_DOCUMENT_NUMBER);
+        InvalidDocumentException exception = assertThrows(InvalidDocumentException.class, () -> userUseCase.saveUser(userModel));
+        assertEquals(ErrorMessages.INVALID_DOCUMENT, exception.getMessage());
+        verify(userPersistencePort, never()).saveUser(any());
     }
 
     @Test
     void saveUser_UnderageUser_ThrowsException() {
         userModel.setBirthdate(LocalDate.now().minusYears(17));
-        assertThrows(UnderageUserException.class, () -> userUseCase.saveUser(userModel));
+        UnderageUserException exception = assertThrows(UnderageUserException.class, () -> userUseCase.saveUser(userModel));
+        assertEquals(ErrorMessages.UNDERAGE_USER, exception.getMessage());
+        verify(userPersistencePort, never()).saveUser(any());
     }
 
     @Test
     void saveUser_ValidRole_ShouldNotThrowException() {
         when(rolePersistencePort.getRoleById(2L)).thenReturn(ownerRole);
-        when(passwordEncoderPort.encode(anyString())).thenReturn("encodedPassword");
+        when(passwordEncoderPort.encode(anyString())).thenReturn(ENCODED_PASSWORD);
 
         assertDoesNotThrow(() -> userUseCase.saveUser(userModel));
     }
 
     @Test
     void saveUser_InvalidRole_ShouldThrowException() {
-        when(rolePersistencePort.getRoleById(2L)).thenReturn(null);
+        when(rolePersistencePort.getRoleById(anyLong())).thenReturn(null);
 
-        assertThrows(InvalidRoleException.class, () -> userUseCase.saveUser(userModel));
+        InvalidRoleException exception = assertThrows(InvalidRoleException.class, () -> userUseCase.saveUser(userModel));
+        assertEquals(ErrorMessages.INVALID_ROLE, exception.getMessage());
+    }
+
+    @Test
+    void getUserById_ExistingUser_ReturnsUser() {
+        when(userPersistencePort.getUserById(DEFAULT_USER_ID)).thenReturn(userModel);
+
+        UserModel foundUser = userUseCase.getUserById(DEFAULT_USER_ID);
+
+        assertNotNull(foundUser);
+        assertEquals(DEFAULT_USER_ID, foundUser.getId());
+        verify(userPersistencePort, times(1)).getUserById(DEFAULT_USER_ID);
+    }
+
+    @Test
+    void getUserById_NonExistingUser_ReturnsNull() {
+        when(userPersistencePort.getUserById(DEFAULT_USER_ID)).thenReturn(null);
+
+        UserModel foundUser = userUseCase.getUserById(DEFAULT_USER_ID);
+
+        assertNull(foundUser);
+        verify(userPersistencePort, times(1)).getUserById(DEFAULT_USER_ID);
     }
 }

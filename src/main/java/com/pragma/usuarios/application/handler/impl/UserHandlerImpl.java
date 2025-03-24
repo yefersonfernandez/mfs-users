@@ -20,10 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserHandlerImpl implements IUserHandler {
 
     private final IUserServicePort userServicePort;
-    private final IRoleServicePort roleServicePort;
     private final IUserRequestMapper userRequestMapper;
     private final IUserResponseMapper userResponseMapper;
-    private final IRoleResponseMapper roleResponseMapper;
 
     @Override
     public void saveUser(UserRequestDto userRequestDto) {
@@ -36,9 +34,4 @@ public class UserHandlerImpl implements IUserHandler {
         return userResponseMapper.toUserResponse(userServicePort.getUserById(userId));
     }
 
-
-    @Override
-    public void deleteUserById(Long userId) {
-        userServicePort.deleteUserById(userId);
-    }
 }
