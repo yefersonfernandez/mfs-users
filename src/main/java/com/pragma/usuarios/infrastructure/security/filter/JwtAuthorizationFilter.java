@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.pragma.usuarios.infrastructure.security.util.Constants.*;
+import static com.pragma.usuarios.infrastructure.security.util.SecurityConstants.*;
 
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
@@ -65,9 +65,5 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.setContentType(CONTENT_TYPE);
         }
-
-
     }
-
-
 }

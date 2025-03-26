@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,6 +31,7 @@ public class UserRestController {
             @ApiResponse(responseCode = "409", description = ApiDescriptions.CREATE_OWNER_409)
     })
     @PostMapping(ApiPaths.CREATE_OWNER)
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Void> createOwner(
             @Parameter(description = ApiDescriptions.CREATE_OWNER_PARAM, required = true)
             @RequestBody UserRequestDto userRequestDto
@@ -45,6 +47,7 @@ public class UserRestController {
             @ApiResponse(responseCode = "404", description = ApiDescriptions.GET_USER_BY_ID_NOT_FOUND)
     })
     @GetMapping(ApiPaths.USER_BY_ID)
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserResponseDto> getUserById(
             @Parameter(description = ApiDescriptions.GET_USER_BY_ID_PARAMETER, required = true)
             @PathVariable(name = "id") Long userId
