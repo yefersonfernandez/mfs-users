@@ -1,5 +1,6 @@
 package com.pragma.usuarios.domain.usecase;
 
+import com.pragma.usuarios.domain.exception.RoleNotFoundException;
 import com.pragma.usuarios.domain.model.RoleModel;
 import com.pragma.usuarios.domain.spi.IRolePersistencePort;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,6 +9,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -42,7 +45,7 @@ class RoleUseCaseTest {
 
     @Test
     void getRoleById_ExistingRole_ReturnsRole() {
-        when(rolePersistencePort.getRoleById(DEFAULT_ROLE_ID)).thenReturn(roleModel);
+        when(rolePersistencePort.getRoleById(DEFAULT_ROLE_ID)).thenReturn(Optional.of(roleModel));
 
         RoleModel foundRole = roleUseCase.getRoleById(DEFAULT_ROLE_ID);
 
@@ -54,11 +57,11 @@ class RoleUseCaseTest {
 
     @Test
     void getRoleById_NonExistingRole_ReturnsNull() {
-        when(rolePersistencePort.getRoleById(DEFAULT_ROLE_ID)).thenReturn(null);
+        when(rolePersistencePort.getRoleById(DEFAULT_ROLE_ID)).thenReturn(Optional.empty());
 
-        RoleModel foundRole = roleUseCase.getRoleById(DEFAULT_ROLE_ID);
+        assertThrows(RoleNotFoundException.class, () -> roleUseCase.getRoleById(DEFAULT_ROLE_ID));
 
-        assertNull(foundRole);
         verify(rolePersistencePort, times(1)).getRoleById(DEFAULT_ROLE_ID);
     }
+
 }

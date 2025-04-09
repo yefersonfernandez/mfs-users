@@ -1,9 +1,10 @@
 package com.pragma.usuarios.domain.usecase;
 
 import com.pragma.usuarios.domain.api.IRoleServicePort;
+import com.pragma.usuarios.domain.exception.RoleNotFoundException;
 import com.pragma.usuarios.domain.model.RoleModel;
 import com.pragma.usuarios.domain.spi.IRolePersistencePort;
-
+import com.pragma.usuarios.domain.utils.ErrorMessages;
 
 public class RoleUseCase implements IRoleServicePort {
 
@@ -20,7 +21,7 @@ public class RoleUseCase implements IRoleServicePort {
 
     @Override
     public RoleModel getRoleById(Long roleId) {
-        return rolePersistencePort.getRoleById(roleId);
+        return rolePersistencePort.getRoleById(roleId)
+                .orElseThrow(() -> new RoleNotFoundException(ErrorMessages.roleNotFound(roleId)));
     }
-
 }

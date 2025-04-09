@@ -22,9 +22,8 @@ public class RoleJpaAdapter implements IRolePersistencePort {
     }
 
     @Override
-    public RoleModel getRoleById(Long roleId) {
-        Optional<RoleEntity> roleEntity  = roleRepository.findById(roleId);
-        return roleEntity.map(roleEntityMapper::toRoleModel).orElse(null);
+    public Optional<RoleModel> getRoleById(Long roleId) {
+        return roleRepository.findById(roleId).map(roleEntityMapper::toRoleModel);
     }
 
 }
