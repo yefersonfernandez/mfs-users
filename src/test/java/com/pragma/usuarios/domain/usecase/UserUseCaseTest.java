@@ -15,9 +15,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 class UserUseCaseTest {
 
@@ -38,6 +40,7 @@ class UserUseCaseTest {
     private static final String INVALID_EMAIL = "invalid-email";
     private static final String INVALID_PHONE_NUMBER = "123abc";
     private static final String INVALID_DOCUMENT_NUMBER = "abc123";
+    private static final int UNDERAGE_AGE = 17;
 
     @Mock
     private IUserPersistencePort userPersistencePort;
@@ -72,7 +75,7 @@ class UserUseCaseTest {
 
     @Test
     void saveUser_SuccessfullyCreatesUser() {
-        when(rolePersistencePort.getRoleById(ROLE_OWNER_ID)).thenReturn(ownerRole);
+        when(rolePersistencePort.getRoleById(ROLE_OWNER_ID)).thenReturn(Optional.of(ownerRole));
         when(passwordEncoderPort.encode(DEFAULT_PASSWORD)).thenReturn(ENCODED_PASSWORD);
         doNothing().when(userPersistencePort).saveUser(any(UserModel.class));
 
@@ -105,8 +108,16 @@ class UserUseCaseTest {
     }
 
     @Test
+    void saveUser_NullRoleId_ThrowsException() {
+        userModel.getRoleModel().setId(null);
+        MissingRequiredFieldsException exception = assertThrows(MissingRequiredFieldsException.class, () -> userUseCase.saveUser(userModel));
+        assertEquals(ErrorMessages.ROLE_REQUIRED, exception.getMessage());
+        verify(userPersistencePort, never()).saveUser(any());
+    }
+
+    @Test
     void saveUser_UnderageUser_ThrowsException() {
-        userModel.setBirthdate(LocalDate.now().minusYears(17));
+        userModel.setBirthdate(LocalDate.now().minusYears(UNDERAGE_AGE));
         UnderageUserException exception = assertThrows(UnderageUserException.class, () -> userUseCase.saveUser(userModel));
         assertEquals(ErrorMessages.UNDERAGE_USER, exception.getMessage());
         verify(userPersistencePort, never()).saveUser(any());
@@ -114,7 +125,7 @@ class UserUseCaseTest {
 
     @Test
     void saveUser_ValidRole_ShouldNotThrowException() {
-        when(rolePersistencePort.getRoleById(2L)).thenReturn(ownerRole);
+        when(rolePersistencePort.getRoleById(ROLE_OWNER_ID)).thenReturn(Optional.of(ownerRole));
         when(passwordEncoderPort.encode(anyString())).thenReturn(ENCODED_PASSWORD);
 
         assertDoesNotThrow(() -> userUseCase.saveUser(userModel));
@@ -122,15 +133,15 @@ class UserUseCaseTest {
 
     @Test
     void saveUser_InvalidRole_ShouldThrowException() {
-        when(rolePersistencePort.getRoleById(anyLong())).thenReturn(null);
+        when(rolePersistencePort.getRoleById(ROLE_OWNER_ID)).thenReturn(Optional.empty());
 
-        InvalidRoleException exception = assertThrows(InvalidRoleException.class, () -> userUseCase.saveUser(userModel));
-        assertEquals(ErrorMessages.INVALID_ROLE, exception.getMessage());
+        RoleNotFoundException exception = assertThrows(RoleNotFoundException.class, () -> userUseCase.saveUser(userModel));
+        assertEquals(ErrorMessages.roleNotFound(ROLE_OWNER_ID), exception.getMessage());
     }
 
     @Test
     void getUserById_ExistingUser_ReturnsUser() {
-        when(userPersistencePort.getUserById(DEFAULT_USER_ID)).thenReturn(userModel);
+        when(userPersistencePort.getUserById(DEFAULT_USER_ID)).thenReturn(Optional.of(userModel));
 
         UserModel foundUser = userUseCase.getUserById(DEFAULT_USER_ID);
 
@@ -140,12 +151,11 @@ class UserUseCaseTest {
     }
 
     @Test
-    void getUserById_NonExistingUser_ReturnsNull() {
-        when(userPersistencePort.getUserById(DEFAULT_USER_ID)).thenReturn(null);
+    void getUserById_NonExistingUser_ThrowsUserNotFoundException() {
+        when(userPersistencePort.getUserById(DEFAULT_USER_ID)).thenReturn(Optional.empty());
 
-        UserModel foundUser = userUseCase.getUserById(DEFAULT_USER_ID);
+        assertThrows(UserNotFoundException.class, () -> userUseCase.getUserById(DEFAULT_USER_ID));
 
-        assertNull(foundUser);
         verify(userPersistencePort, times(1)).getUserById(DEFAULT_USER_ID);
     }
 }

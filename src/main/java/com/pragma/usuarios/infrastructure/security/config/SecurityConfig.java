@@ -2,6 +2,7 @@ package com.pragma.usuarios.infrastructure.security.config;
 
 import com.pragma.usuarios.infrastructure.security.filter.JwtAuthenticationFilter;
 import com.pragma.usuarios.infrastructure.security.filter.JwtAuthorizationFilter;
+import com.pragma.usuarios.infrastructure.security.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,12 +16,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import static com.pragma.usuarios.infrastructure.security.util.SecurityConstants.*;
+
 @Configuration
 @RequiredArgsConstructor
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final JwtUtil jwtUtil;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -28,19 +32,20 @@ public class SecurityConfig {
     }
 
     @Bean
-    AuthenticationManager authenticationManager() throws Exception {
-        return this.authenticationConfiguration.getAuthenticationManager();
+    public AuthenticationManager authenticationManager() throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        return httpSecurity.authorizeHttpRequests(http -> http
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+        return httpSecurity
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(SWAGGER_PATHS).permitAll()
                         .anyRequest().authenticated())
-                .addFilter(new JwtAuthenticationFilter(authenticationManager()))
-                .addFilter(new JwtAuthorizationFilter(authenticationManager()))
+                .addFilter(new JwtAuthenticationFilter(authenticationManager(), jwtUtil))
+                .addFilter(new JwtAuthorizationFilter(authenticationManager(), jwtUtil))
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
 }

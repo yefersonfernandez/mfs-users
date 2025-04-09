@@ -35,23 +35,22 @@ public class UserUseCase implements IUserServicePort {
     public void saveUser(UserModel userModel) {
         validateUser(userModel);
 
-        RoleModel roleModel = rolePersistencePort.getRoleById(userModel.getRoleModel().getId());
-        userModel.setRoleModel(roleModel);
+        userModel.setRoleModel(fetchRole(userModel.getRoleModel().getId()));
+        userModel.setPassword(encodePassword(userModel.getPassword()));
 
-        userModel.setPassword(passwordEncodePort.encode(userModel.getPassword()));
         userPersistencePort.saveUser(userModel);
     }
 
     @Override
     public UserModel getUserById(Long userId) {
-        return userPersistencePort.getUserById(userId);
+        return userPersistencePort.getUserById(userId)
+                .orElseThrow(() -> new UserNotFoundException(ErrorMessages.userNotFound(userId)));
     }
 
     private void validateUser(UserModel user) {
         validateRequiredFields(user);
         validateFormats(user);
         validateLegalAge(user.getBirthdate());
-        validateRole(user.getRoleModel().getId());
     }
 
     private void validateRequiredFields(UserModel user) {
@@ -69,6 +68,10 @@ public class UserUseCase implements IUserServicePort {
 
         Optional.ofNullable(user.getBirthdate())
                 .orElseThrow(() -> new MissingRequiredFieldsException(ErrorMessages.BIRTHDATE_REQUIRED));
+
+        Optional.ofNullable(user.getRoleModel())
+                .filter(roleModel -> roleModel.getId() != null)
+                .orElseThrow(() -> new MissingRequiredFieldsException(ErrorMessages.ROLE_REQUIRED));
     }
 
     private void validateFormats(UserModel user) {
@@ -102,9 +105,12 @@ public class UserUseCase implements IUserServicePort {
         }
     }
 
-    private void validateRole(Long roleId) {
-        if (rolePersistencePort.getRoleById(roleId) == null) {
-            throw new InvalidRoleException(ErrorMessages.INVALID_ROLE);
-        }
+    private RoleModel fetchRole(Long roleId) {
+        return rolePersistencePort.getRoleById(roleId)
+                .orElseThrow(() -> new RoleNotFoundException(ErrorMessages.roleNotFound(roleId)));
+    }
+
+    private String encodePassword(String password) {
+        return passwordEncodePort.encode(password);
     }
 }
