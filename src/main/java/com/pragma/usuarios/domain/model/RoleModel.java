@@ -5,6 +5,13 @@ public class RoleModel {
     private String name;
     private String description;
 
+    public RoleModel() {
+    }
+
+    public RoleModel(Long id) {
+        this.id = id;
+    }
+
     public RoleModel(Long id, String name, String description) {
         this.id = id;
         this.name = name;

@@ -16,5 +16,4 @@ public class UserRequestDto {
     private LocalDate birthdate;
     private String email;
     private String password;
-    private Long roleId;
 }

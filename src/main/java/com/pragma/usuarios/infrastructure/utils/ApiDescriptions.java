@@ -7,8 +7,14 @@ public class ApiDescriptions {
     public static final String CREATE_OWNER_SUMMARY = "Create a new owner";
     public static final String CREATE_OWNER_DESCRIPTION = "Register a new owner with the provided details";
     public static final String CREATE_OWNER_PARAM = "Owner data for registration";
-    public static final String CREATE_OWNER_201 = "Owner successfully created";
-    public static final String CREATE_OWNER_409 = "Owner already exists";
+    public static final String CREATE_OWNER_SUCCESS = "Owner successfully created";
+    public static final String CREATE_OWNER_CONFLICT = "Owner already exists";
+
+    public static final String CREATE_EMPLOYEE_SUMMARY = "Create a new employee";
+    public static final String CREATE_EMPLOYEE_DESCRIPTION = "Register a new employee with the provided details";
+    public static final String CREATE_EMPLOYEE_PARAM = "Employee data for registration";
+    public static final String CREATE_EMPLOYEE_SUCCESS = "Employee successfully created";
+    public static final String CREATE_EMPLOYEE_CONFLICT = "Employee already exists";
 
     public static final String GET_USER_BY_ID_SUMMARY = "Get user details by ID";
     public static final String GET_USER_BY_ID_DESCRIPTION = "Retrieve information about a specific user using their ID";

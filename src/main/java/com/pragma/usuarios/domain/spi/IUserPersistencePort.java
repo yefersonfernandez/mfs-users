@@ -8,6 +8,7 @@ public interface IUserPersistencePort {
 
     void saveUser(UserModel userModel);
 
-    Optional<UserModel> getUserById(Long userIdentity);
+    Optional<UserModel> getUserById(Long userId);
 
+    Optional<UserModel> getUserByEmail(String email);
 }

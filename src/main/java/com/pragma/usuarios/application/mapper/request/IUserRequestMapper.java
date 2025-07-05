@@ -11,6 +11,5 @@ import org.mapstruct.ReportingPolicy;
         unmappedSourcePolicy = ReportingPolicy.IGNORE)
 public interface IUserRequestMapper {
 
-    @Mapping(source = "roleId", target = "roleModel.id")
     UserModel toUserModel(UserRequestDto userRequestDto);
 }

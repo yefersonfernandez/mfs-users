@@ -27,13 +27,29 @@ public class UserRestController {
     @Operation(summary = ApiDescriptions.CREATE_OWNER_SUMMARY,
             description = ApiDescriptions.CREATE_OWNER_DESCRIPTION)
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = ApiDescriptions.CREATE_OWNER_201),
-            @ApiResponse(responseCode = "409", description = ApiDescriptions.CREATE_OWNER_409)
+            @ApiResponse(responseCode = "201", description = ApiDescriptions.CREATE_OWNER_SUCCESS),
+            @ApiResponse(responseCode = "409", description = ApiDescriptions.CREATE_OWNER_CONFLICT)
     })
     @PostMapping(ApiPaths.CREATE_OWNER)
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Void> createOwner(
             @Parameter(description = ApiDescriptions.CREATE_OWNER_PARAM, required = true)
+            @RequestBody UserRequestDto userRequestDto
+    ) {
+        userHandler.saveUser(userRequestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @Operation(summary = ApiDescriptions.CREATE_EMPLOYEE_SUMMARY,
+            description = ApiDescriptions.CREATE_EMPLOYEE_DESCRIPTION)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = ApiDescriptions.CREATE_EMPLOYEE_SUCCESS),
+            @ApiResponse(responseCode = "409", description = ApiDescriptions.CREATE_EMPLOYEE_CONFLICT)
+    })
+    @PostMapping(ApiPaths.CREATE_EMPLOYEE)
+    @PreAuthorize("hasAuthority('ROLE_OWNER')")
+    public ResponseEntity<Void> createEmployee(
+            @Parameter(description = ApiDescriptions.CREATE_EMPLOYEE_PARAM, required = true)
             @RequestBody UserRequestDto userRequestDto
     ) {
         userHandler.saveUser(userRequestDto);
